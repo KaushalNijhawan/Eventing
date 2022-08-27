@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@mui/material": "^5.10.2",
+    "@mui/styled-engine-sc": "^5.10.1",
+    "@reduxjs/toolkit": "^1.8.5",
+    "axios": "^0.27.2",
+    "bootstrap": "^5.2.0",
+    "react-router-dom": "^6.3.0",
+    "styled-components": "^5.3.5"
+  }
+}
