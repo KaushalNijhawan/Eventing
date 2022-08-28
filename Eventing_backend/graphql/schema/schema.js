@@ -30,7 +30,8 @@ input EventInput{
 }
 input UserInput{
     username : String!,
-    password:String!
+    password:String!,
+    email : String!
 }
 
 type LoggedUser{

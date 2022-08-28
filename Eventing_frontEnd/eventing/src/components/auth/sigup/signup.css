@@ -1,6 +1,6 @@
 .home {
     background-image: linear-gradient(to right top, #051937, #004d7a, #008793, #00bf72, #a8eb12);
-    background: url("../../../../assets/images/party-login.jpg") no-repeat center center fixed;
+    background: url("../../../../assets/images/party-signUp.jpg") no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -10,8 +10,4 @@
 label,
 h1 {
     color: white
-}
-
-.error{
-    color:'red'
 }

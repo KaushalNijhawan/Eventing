@@ -100,6 +100,7 @@ module.exports = {
         const customUser = {
             username : args.userDetails.username,
             password: args.userDetails.password,
+            email : args.userDetails.email,
             eventsList : null
         };
         const salt = await bcrypt.genSalt(10);

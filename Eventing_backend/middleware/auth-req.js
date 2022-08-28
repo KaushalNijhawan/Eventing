@@ -4,12 +4,14 @@ const authenticate  = (req, res, next)=>{
         req.isAuth = false;
         return next();
     }else{
-        const authentication = req.headers['authentication'];
+        const authentication = req.headers['authorization'];
+        console.log(authentication);
         if(!authentication || authentication == "" || authentication.length == 0){
             req.isAuth = false;
             return next();
         }else{
             const token = authentication.split(' ');
+            console.log(authentication)
             if(token[1] == "" || !token){
                 req.isAuth = false;
                 return next();
@@ -18,6 +20,7 @@ const authenticate  = (req, res, next)=>{
             try{
                 decoded = jwt.verify(token , 'longlongververyverylongstringthisoneis');
             }catch(err){
+                console.log('here')
                 req.isAuth = false;
                 return next();
             }
