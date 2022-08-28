@@ -92,10 +92,12 @@ module.exports = {
         return event;
     },
     createUser : async(args)=>{
-       const response = await existingUser(args.userDetails.username);
+       let response = await existingUser(args.userDetails.username);
+       if(!response){
+            response = await userModel.find({email :{$in : args.userDetails.email}});
+       }
         if(response){
-            console.error('Existing User!');
-            return null;
+            throw new Error('User is Existing!');
        }else{
         const customUser = {
             username : args.userDetails.username,

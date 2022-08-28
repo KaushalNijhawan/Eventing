@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import './login.css';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 const Login = () => {
     const [loginUser , setLoginUser] = useState({
         username : "",
         password : ""
     });
-
+    const navigate = useNavigate();
     const [error , setError] = useState("");
 
     const handleChange =(e)=>{
@@ -15,11 +16,11 @@ const Login = () => {
             const value = e.target.value;
             // here if you see squre brackets this will do the dynamic mapping of the fields using one way binding like it will see the name of field and assign the value to it dynamically accordingly;
             setLoginUser({...loginUser, [name] : value});
-            console.log(loginUser)
+            setError("");
         }
     }
 
-    const handleSubmit = async (e)=>{
+    const handleSubmit = (e)=>{
         e.preventDefault();
         if(loginUser){
             const headers = {
@@ -35,7 +36,7 @@ const Login = () => {
               }`
             };
             axios({
-                url:'http://localhost:3000/api',
+                url: "http://localhost:3000/api" ,
                 method:"POST",
                 headers: headers,
                 data:JSON.stringify(requestBOdy)
@@ -74,7 +75,7 @@ const Login = () => {
                 <button type="submit" className="btn btn-primary" style={{marginTop:'7%'}}
                 disabled = {error!="" ? true : false} >Login</button>
                 <button type="submit" className="btn btn-primary" style={{marginTop:'7%',marginLeft:'2%'}} 
-                disabled = {error!= "" ? false : true}>Create User</button>
+                disabled = {error!= "" ? false : true} onClick={()=> navigate('/signUp')}>Create User</button>
                 {error ? <div className = "error">{error}</div> : null}
               </form>
             </div>

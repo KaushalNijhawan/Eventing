@@ -9,6 +9,10 @@ const userModel = new Schema({
         type:String,
         require: true
     },
+    email:{
+        type:String,
+        require:true
+    },
     eventsList:
     [{
         type : mongoose.Types.ObjectId,
