@@ -2,12 +2,15 @@ import { useState } from 'react';
 import './login.css';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { loggUser } from '../../../Redux/resolvers/userResolver';
 const Login = () => {
     const [loginUser , setLoginUser] = useState({
         username : "",
         password : ""
     });
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [error , setError] = useState("");
 
     const handleChange =(e)=>{
@@ -44,7 +47,16 @@ const Login = () => {
                 if(resp && resp.data){
                     setError(resp.data && resp.data.errors && resp.data.errors[0].message ? resp.data.errors[0].message : "");
                     if(error == ""){
-                        // no error case;
+                        let responseObject = resp.data.data.loginUser;
+                        if(responseObject && responseObject.token){
+                            responseObject = {...responseObject
+                                ,
+                                loggedIn : true
+
+                            };
+                            dispatch(loggUser(responseObject));
+                            navigate("/logged/"+responseObject.username);
+                        }
                     }
                 }
             }).catch((err)=>{
