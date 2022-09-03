@@ -5,13 +5,11 @@ const authenticate  = (req, res, next)=>{
         return next();
     }else{
         const authentication = req.headers['authorization'];
-        console.log(authentication);
         if(!authentication || authentication == "" || authentication.length == 0){
             req.isAuth = false;
             return next();
         }else{
-            const token = authentication.split(' ');
-            console.log(authentication)
+            const token = authentication.split(' ')[1];
             if(token[1] == "" || !token){
                 req.isAuth = false;
                 return next();
@@ -20,12 +18,11 @@ const authenticate  = (req, res, next)=>{
             try{
                 decoded = jwt.verify(token , 'longlongververyverylongstringthisoneis');
             }catch(err){
-                console.log('here')
                 req.isAuth = false;
                 return next();
             }
             req.isAuth = true;
-            req.userId = decoded.foo; 
+            req.userId = decoded.foo;
             return next();
         }
     }

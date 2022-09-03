@@ -47,9 +47,7 @@ module.exports = {
             throw new Error('unauthenticated User!');
         }
         const booking = await bookingModel.find();
-        console.log(booking)
         return booking.map((book)=>{
-            console.log(book)
             return {
                 ...book._doc,
                 user : userModel.findOne({_id:{$in : book._doc.user}}),
@@ -60,30 +58,30 @@ module.exports = {
     createEvent : async (args, req)=>{
         if(!req.isAuth){
             throw new Error('unauthenticated User!');
-        }        
+        }
+        let user = await userModel.findOne({username : {$in : req.userId}});  
         const custEvent = {
             _id : Math.random().toString(),
             eventName : args.eventType.eventName,
             date : new Date().toLocaleDateString(),
             description : args.eventType.description,
             price : args.eventType.price,
-            creator : req.userId 
+            creator : user && user._id ? user._id : '' 
         }
-        let linkedUserWithId = await userModel.findById(req.userId);
         const event = await new eventModel({
             eventName : args.eventType.eventName,
-            date : new Date().toLocaleDateString(),
+            date : args.eventType.eventName,
             description : args.eventType.description,
             price : args.eventType.price,
-            creator : linkedUserWithId ? linkedUserWithId :  null
+            creator : user ? user._id :  ''
         }).save();
-        if(linkedUserWithId){
-            if(linkedUserWithId['eventsList']){
-                linkedUserWithId['eventsList'].push(event);
+        if(user){
+            if(user['eventsList']){
+                user['eventsList'].push(event);
             }else{
-                linkedUserWithId['eventsList'] = [event];
+                user['eventsList'] = [event];
             }
-                await linkedUserWithId.save();
+                await user.save();
         }
         
         if(event){
@@ -121,9 +119,7 @@ module.exports = {
         }
         if(args && args.eventID){
             let eventId  = args.eventID;
-            console.log(eventId);
             let event = await eventModel.findById(args.eventID);
-            console.log(event);
             let booking = {
                 event : event._id,
                 user : '630356d6e516befdaf6a6b91',
@@ -163,7 +159,6 @@ module.exports = {
             const user = await userModel.findOne({username : {$in : username}});      
             let passwordEncode = user && user.password ? user.password : '';
             let match = await bcrypt.compare(password, passwordEncode);
-            console.log(match)
             if(match == true){
                 const token = jwt.sign({ foo: username },"longlongververyverylongstringthisoneis", {expiresIn : '1h'});
                 let eventList = [];
@@ -172,7 +167,6 @@ module.exports = {
                         let event = await eventModel.findById(eid);
                         eventList.push(event);
                     });
-                    console.log(eventList);
                 }
                 return {
                     ...user,

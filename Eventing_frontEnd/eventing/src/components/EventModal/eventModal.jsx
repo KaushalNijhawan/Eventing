@@ -40,9 +40,8 @@ const EventModal = forwardRef((props, ref) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(props);
         if (eventObj && eventObj.date && eventObj.desc && eventObj.price && eventObj.desc) {
-            let currentUserToken = props && props.user && props.user.token ? props.user.token : '';
+            let currentUserToken = props && props.currentUser && props.currentUser.token ? props.currentUser.token : '';
             const headers = {
                 'Content-type': 'application/json',
                 'authorization': 'Bearer ' + currentUserToken
@@ -56,15 +55,8 @@ const EventModal = forwardRef((props, ref) => {
                       description:"${eventObj.desc}",
                       price:${Number(eventObj.price)}
                     }){
-                      creator{ 
-                      username,
-                        eventsList{
-                            eventName,
-                            description,
-                            price,
-                            date
-                        }
-                      }
+                        eventName,
+                        date
                     }
                   }
                 `
@@ -76,11 +68,16 @@ const EventModal = forwardRef((props, ref) => {
                 url: 'http://localhost:3000/api',
                 data: JSON.stringify(responseBody)
             }).then((resp) => {
-
+                console.log(resp);
+                if(resp && resp.data && resp.data.data && resp.data.data.createEvent){
+                    setError('');
+                    dispatch(addEvents(eventObj));
+                    setOpen(false);
+                }else{
+                }
             }).catch((err) => {
                 setError("Fields Suplied are Invalid!");
             })
-            console.log(props);
         } else {
             setError('All Fields are mandatory!');
         }
@@ -90,8 +87,22 @@ const EventModal = forwardRef((props, ref) => {
         if (e && e.target) {
             const name = e.target.name;
             const value = e.target.value;
+            if(name === 'price'){
+                let isNumber =  Number(value);
+                if(isNaN(isNumber)){
+                    setError('Only Numbers Allowed in Price!');
+                }else{
+                    setError('');
+                }
+            }
             setEventObj({ ...eventObj, [name]: value });
         }
+    }
+
+    const currentDate = () =>{
+        let time = new Date().getHours() + ":" + new Date().getMinutes();
+        let date = new Date().toISOString().split("T")[0];
+        return date + "T" + time;
     }
 
     return (
@@ -108,22 +119,22 @@ const EventModal = forwardRef((props, ref) => {
                         <div className="form-group">
                             <label htmlFor="title-event" className="labels">Title:</label>
                             <input type="text" className="form-control" id="title-event" name="title" style={{ width: '70%' }}
-                                onClick={(e) => handleChange(e)} />
+                                onChange={(e) => handleChange(e)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="price-event" className="labels">Price:</label>
-                            <input type="text" className="form-control" id="price-event" name="title" style={{ width: '70%' }}
-                                onClick={(e) => handleChange(e)} />
+                            <input type="text" className="form-control" id="price-event" name="price" style={{ width: '70%' }}
+                                onChange={(e) => handleChange(e)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="date-event" className="labels">Date:</label>
-                            <input type="datetimelocal" id="date-event" className="form-control" name="date" style={{ width: '70%' }}
-                                onClick={(e) => handleChange(e)} />
+                            <input type="datetime-local" id="date-event" className="form-control" name="date" style={{ width: '70%' }}
+                                onChange={(e) => handleChange(e)} min ={currentDate()} max = "2022-12-31T00:00"/>
                         </div>
                         <div className="form-group">
                             <label htmlFor="desc-event" className="labels">Description</label>
                             <textarea className="form-control" id="desc-event" name="desc" rows="3" style={{ width: '70%' }}
-                                onClick={(e) => handleChange(e)} />
+                                onChange={(e) => handleChange(e)} />
                         </div>
                         {error ? <div style={{ color: 'red', fontWeight: 'bold', alignItems: "start" }}>{error}</div> : null}
                         <div className="form-group">
