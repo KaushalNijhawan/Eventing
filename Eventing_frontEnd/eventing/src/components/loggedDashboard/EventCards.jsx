@@ -1,13 +1,12 @@
-import EventIcon from '@mui/icons-material/Event';
-const EventCards = () => {
-
+import { useEffect } from "react";
+import "./eventCards.css";
+const EventCards = ({event}) => {
     return (
-        <div class="card" style={{width:'25%',marginLeft:'2%'}}>
-            <h5 class="card-header"><EventIcon/></h5>
-            <div class="card-body">
-                <h5 class="card-title">Special title treatment</h5>
-                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
+        <div style={{width:'25%', backgroundColor:'white', marginLeft:'1%'}} className="shadow-lg p-3 mb-5 bg-white rounded">
+            <div className="card-body">
+                <h5 className="card-title">{event.eventName}</h5>
+               <span className="card-b"><p className="card-text">${event.price}</p> - <p className="card-text">{event.date}</p></span>
+                <a href="#" className="btn btn-primary">Show Details</a>
             </div>
         </div>
     );

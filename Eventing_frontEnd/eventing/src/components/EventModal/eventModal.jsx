@@ -71,7 +71,16 @@ const EventModal = forwardRef((props, ref) => {
                 console.log(resp);
                 if(resp && resp.data && resp.data.data && resp.data.data.createEvent){
                     setError('');
-                    dispatch(addEvents(eventObj));
+                    let newEventObj = {
+                        ...eventObj,
+                        eventName : eventObj.title,
+                        creator:{
+                            username : props.currentUser.username
+                        }
+                    }
+                    
+                    dispatch(addEvents(newEventObj));
+                    props.addEvent(newEventObj);
                     setOpen(false);
                 }else{
                 }

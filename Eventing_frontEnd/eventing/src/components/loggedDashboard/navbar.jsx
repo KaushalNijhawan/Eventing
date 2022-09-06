@@ -15,9 +15,14 @@ const Navbar = (props) => {
                         <a className="nav-link" href="#" style={{ color: 'white' }}>Events</a>
                     </li>
                 </ul>
+                <ul className="navbar-nav mr-auto">
+                    <li className="nav-item active">
+                        <a className="nav-link" href="#" style={{ color: 'white' }}>Bookings</a>
+                    </li>
+                </ul>
             </div>
             <div className="navEnd-text">
-                <span>{props.currentUser.username}<Person /></span>
+                <span>{props && props.currentUser && props.currentUser.username ? props.currentUser.username : ''}<Person /></span>
                 <a className="navbar-brand" href="#" style={{ color: 'white' }}>Logout</a>
             </div>
         </nav>

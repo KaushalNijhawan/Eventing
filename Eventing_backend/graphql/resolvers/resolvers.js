@@ -21,7 +21,8 @@ const existingUser = async (username)=>{
 }
 
 module.exports = {
-    events : async(req)=>{
+    // if we want to fetch the req here than always pass args , req event if we are not passing any args from UI
+    events : async(args , req)=>{
         if(!req.isAuth){
             throw new Error('unauthenticated User!');
         }
