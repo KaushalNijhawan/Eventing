@@ -14,7 +14,7 @@ type Booking {
     user : User!,
     event : Event!,
     createdAt : String!,
-    udpdatedAt: String!
+    updatedAt: String!
 }
 type User{
     username : String!,

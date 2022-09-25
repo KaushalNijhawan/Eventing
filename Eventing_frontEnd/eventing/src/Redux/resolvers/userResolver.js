@@ -20,6 +20,7 @@ export const addEvents = createAction('addEvent', (eventInfo)=>{
 export const userReducer = createReducer((initialState), (builder)=>{
     builder.addCase(loggUser , (state, action)=>{
         if(action && action.payload){
+            console.log(action.payload)
             state.user = action.payload;
         }
     })

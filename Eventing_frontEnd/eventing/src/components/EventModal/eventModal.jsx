@@ -56,7 +56,8 @@ const EventModal = forwardRef((props, ref) => {
                       price:${Number(eventObj.price)}
                     }){
                         eventName,
-                        date
+                        date,
+                        _id
                     }
                   }
                 `
@@ -70,13 +71,15 @@ const EventModal = forwardRef((props, ref) => {
             }).then((resp) => {
                 console.log(resp);
                 if(resp && resp.data && resp.data.data && resp.data.data.createEvent){
+                    let id = resp.data.data.createEvent._id;
                     setError('');
                     let newEventObj = {
                         ...eventObj,
                         eventName : eventObj.title,
                         creator:{
                             username : props.currentUser.username
-                        }
+                        },
+                        id : id 
                     }
                     
                     dispatch(addEvents(newEventObj));

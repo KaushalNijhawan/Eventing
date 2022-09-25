@@ -121,10 +121,12 @@ module.exports = {
         if(args && args.eventID){
             let eventId  = args.eventID;
             let event = await eventModel.findById(args.eventID);
+            let user = await userModel.find({username:{$in : req.userId}})
             let booking = {
                 event : event._id,
-                user : '630356d6e516befdaf6a6b91',
+                user : user._id,
             }
+            console.log(user);
             const custBooking = await new bookingModel(booking).save();
             if(custBooking){
                 return {

@@ -8,20 +8,19 @@ import { useRef } from 'react';
 import Navbar from './navbar';
 import EventCards from './EventCards';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import { addEvents } from '../../Redux/resolvers/userResolver';
+import CardDetaialsModal from '../CardDetailsModal/cardDetailsModal';
 
 const LoggedDashboard = () => {
 
   const modalRef = useRef(null);
+  const cardModal = useRef(null);
   const [currentUser, setCurrentUser] = useState(null);
-  const [events, setEvents ] =  useState([]);
-  
+  const [events, setEvents] = useState([]);
 
-  const addEvent = (eventObj) =>{
-    console.log(eventObj);
-    if(eventObj && eventObj.price && eventObj.date && eventObj.desc && eventObj.title && eventObj.creator){
-       setEvents([...events , eventObj]);
+
+  const addEvent = (eventObj) => {
+    if (eventObj && eventObj.price && eventObj.date && eventObj.desc && eventObj.title && eventObj.creator) {
+      setEvents([...events, eventObj]);
     }
   }
 
@@ -29,26 +28,33 @@ const LoggedDashboard = () => {
     if (store.getState().user) {
       setCurrentUser(store.getState().user);
     }
-    
-    if(currentUser){
+
+    if (currentUser) {
       getEvents();
     }
-    
-    if(store && store.getState() && store.getState().eventInfo){
+
+    if (store && store.getState() && store.getState().eventInfo) {
       setEvents(store.getState().eventInfo);
     }
-  },[currentUser]);
+    console.log(currentUser)
+  }, [currentUser]);
 
+  const openModal = (event) =>{
+    if(cardModal && cardModal.current){
+      cardModal.current.setEventObj(event);
+      cardModal.current.handleOpen();
+    }
+  }
 
-  const getEvents = async () =>{
-    if(currentUser){
+  const getEvents = async () => {
+    if (currentUser) {
       let userToken = currentUser.token ? currentUser.token : '';
       const headers = {
         'Content-type': 'application/json',
         'authorization': 'Bearer ' + userToken
       }
       const requestBody = {
-        query :`query{
+        query: `query{
           events{ 
             creator{
               username
@@ -57,22 +63,22 @@ const LoggedDashboard = () => {
             date,
              description,
             price,
+            _id
           }
         }`
       }
 
-      try{
-        let response =  await axios({
-          method:"POST",
-          url:'http://localhost:3000/api',
-          data:JSON.stringify(requestBody),
-          headers : headers
+      try {
+        let response = await axios({
+          method: "POST",
+          url: 'http://localhost:3000/api',
+          data: JSON.stringify(requestBody),
+          headers: headers
         });
         setEvents(response.data.data.events);
-      }catch(err){
+      } catch (err) {
         console.log(err);
       }
-      console.log(events);
     }
   }
 
@@ -91,10 +97,13 @@ const LoggedDashboard = () => {
             <Button variant="contained" onClick={handleEventClick}>Create Event</Button>
           </div>
         </div>
-        <EventModal ref={modalRef} currentUser={currentUser} addEvent = {(event) => addEvent(event)}/>
+        <EventModal ref={modalRef} currentUser={currentUser} addEvent={(event) => addEvent(event)} />
         <div className="cards-div">
-          {events ? events.map((event, key)=>{
-              return <EventCards event = {event} key={key}/>
+          {events ? events.map((event, key) => {
+            return (<>
+              <EventCards event={event} key={key} currentUser={currentUser} openModal = {(e) => openModal(e)}/>
+              <CardDetaialsModal key={key+10} ref={cardModal} currentUser={currentUser}/>
+            </>);
           }) : null}
         </div>
       </div>
