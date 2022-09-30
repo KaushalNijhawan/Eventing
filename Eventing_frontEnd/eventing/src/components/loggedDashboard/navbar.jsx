@@ -1,6 +1,7 @@
 import "./dasboard.css";
 import { Person } from '@mui/icons-material';
 import EventIcon from '@mui/icons-material/Event';
+import { Link } from "react-router-dom";
 const Navbar = (props) => {
     return (
         <nav className="navbar fixed-top navbar-expand-lg navbar-light" style={{backgroundColor: 'rgb(15, 82, 186)'}}>
@@ -17,7 +18,7 @@ const Navbar = (props) => {
                 </ul>
                 <ul className="navbar-nav mr-auto">
                     <li className="nav-item active">
-                        <a className="nav-link" href="#" style={{ color: 'white' }}>Bookings</a>
+                    <Link to="/logged/user/booking" style={{color:'white', textDecoration:'none'}}>Bookings</Link>
                     </li>
                 </ul>
             </div>

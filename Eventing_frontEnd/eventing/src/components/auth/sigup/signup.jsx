@@ -60,6 +60,7 @@ const SignUp = () => {
                     // no error scenario;
                 }
                 console.log(resp);
+                navigate('/');
             }).catch((err) => {
                 setError("Something wrong with Server!");
                 console.log(err);
@@ -94,7 +95,7 @@ const SignUp = () => {
                         <input type="password" name="cpassword" className="form-control" id="exampleInputPassword1" placeholder="Enter Confirm Password..."
                             onChange={e => handleConfirmPassword(e)} />
                     </div>
-                    <button type="submit" className="btn btn-primary" style={{ marginTop: '7%' }} disabled={error != '' ? true : false}>SignUp</button>
+                    <button type="submit" className="btn btn-primary" style={{ marginTop: '7%' }} >SignUp</button>
                     <button type="submit" className="btn btn-primary" style={{ marginTop: '7%', marginLeft: '2%' }} disabled={error != '' ? false : true}
                         onClick={() => navigate("/")}>Login</button>
                     {error ? <div className="error">{error}</div> : null}

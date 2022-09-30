@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {Routes, Route,Navigate, useNavigate} from "react-router-dom";
 import Login from "./components/auth/login/login";
 import SignUp from "./components/auth/sigup/signup";
+import BookingList from "./components/booking/booking";
 import LoggedDashboard from "./components/loggedDashboard/loggedDashboard";
 import store from "./Redux/state/index";
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="signup" element = {<SignUp/>} />
         <Route path="*" element={<Navigate to="/" replace/>}/>
         <Route path ="/logged/:user" element ={<LoggedDashboard/>}/>
+        <Route path ="/logged/user/booking" element = {<BookingList/>} />
       </Routes>
   );
 }

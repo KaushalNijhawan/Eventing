@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import { forwardRef } from 'react';
 import { useDispatch } from 'react-redux';
 import "./eventModal.css";
-import { addEvents } from '../../Redux/resolvers/userResolver';
+import { addEvents, loggUser } from '../../Redux/resolvers/userResolver';
 import axios from 'axios';
 const style = {
     position: 'absolute',
@@ -38,9 +38,44 @@ const EventModal = forwardRef((props, ref) => {
         handleError() { setError('') }
     }));
 
+    const createBooking  = (eventId) =>{
+        const headers = {
+            'Content-Type': 'application/json',
+            'authorization': 'bearer ' + props.currentUser.token
+          }
+          const requestBody = {
+            query:
+              `mutation{
+                createBooking(eventID:"${eventId}"){
+                  _id,
+                  createdAt,
+                  updatedAt
+                }
+              }`
+          };
+          axios({
+            url: 'http://localhost:3000/api',
+            headers: headers,
+            method: 'POST',
+            data: JSON.stringify(requestBody)
+          }).then((resp) => {
+            if(resp && resp.data && resp.data.data && resp.data.data.createBooking){
+                dispatch(loggUser({
+                  ...props.currentUser,
+                  bookingIds : props.currentUser && props.currentUser.bookingIds ? props.currentUser.bookingIds.push(resp.data.data.createBooking) : 
+                  [resp.data.data.createBooking]
+                }));
+            }
+            console.log(resp);
+          }).catch((err) => {
+            console.log(err);
+          });
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (eventObj && eventObj.date && eventObj.desc && eventObj.price && eventObj.desc) {
+            let date = eventObj.date.substring(0,10);
             let currentUserToken = props && props.currentUser && props.currentUser.token ? props.currentUser.token : '';
             const headers = {
                 'Content-type': 'application/json',
@@ -51,7 +86,7 @@ const EventModal = forwardRef((props, ref) => {
                 mutation{
                     createEvent(eventType:{
                       eventName:"${eventObj.title}",
-                      date:"${eventObj.date}",
+                      date:"${date}",
                       description:"${eventObj.desc}",
                       price:${Number(eventObj.price)}
                     }){
@@ -76,12 +111,13 @@ const EventModal = forwardRef((props, ref) => {
                     let newEventObj = {
                         ...eventObj,
                         eventName : eventObj.title,
+                        date : date,
                         creator:{
                             username : props.currentUser.username
                         },
                         id : id 
                     }
-                    
+                    createBooking(id); 
                     dispatch(addEvents(newEventObj));
                     props.addEvent(newEventObj);
                     setOpen(false);

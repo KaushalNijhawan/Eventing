@@ -65,7 +65,8 @@ const CardDetaialsModal = forwardRef((props, ref) => {
       if(resp && resp.data && resp.data.data && resp.data.data.createBooking){
           dispatch(loggUser({
             ...props.currentUser,
-            booking : resp.data.data.createBooking
+            bookingIds : props.currentUser && props.currentUser.bookingIds ? props.currentUser.bookingIds.push(resp.data.data.createBooking) : 
+            [resp.data.data.createBooking]
           }));
           setOpen(false);
       }

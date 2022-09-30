@@ -19,7 +19,8 @@ type Booking {
 type User{
     username : String!,
     password:String,
-    eventsList: [Event!]
+    eventsList: [Event!],
+    bookingIds:[ID!],
 }
 
 input EventInput{
@@ -37,8 +38,10 @@ input UserInput{
 type LoggedUser{
     username : String!,
     token : String!,
-    eventsList: [Event!]
+    eventsList: [Event!],
+    bookingIds:[ID!]
 }
+
 type RootQuery{
     events: [Event!]!,
     users : [User!]!,
@@ -50,6 +53,7 @@ type RootMutation{
     createBooking(eventID : ID!):Booking,
     cancelBooking(bookingId : ID!):Booking,
     loginUser(username : String , password : String) : LoggedUser
+    fetchBookingRelatedEvents(bookingList : [ID!]) : [Event] 
 }
 
 schema{

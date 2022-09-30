@@ -32,11 +32,12 @@ const Login = () => {
             }
             let requestBOdy = {
                 query : `mutation{
-                loginUser(username:"${loginUser.username}", password:"${loginUser.password}"){
-                  username,
-                  token
-                }
-              }`
+                    loginUser(username:"${loginUser.username}", password:"${loginUser.password}"){
+                      username,
+                      token,
+                      bookingIds
+                    }
+                  }`
             };
             axios({
                 url: "http://localhost:3000/api" ,
@@ -52,7 +53,6 @@ const Login = () => {
                             responseObject = {...responseObject
                                 ,
                                 loggedIn : true
-
                             };
                             dispatch(loggUser(responseObject));
                             navigate("/logged/"+responseObject.username);
@@ -87,7 +87,7 @@ const Login = () => {
                 <button type="submit" className="btn btn-primary" style={{marginTop:'7%'}}
                 disabled = {error!="" ? true : false} >Login</button>
                 <button type="submit" className="btn btn-primary" style={{marginTop:'7%',marginLeft:'2%'}} 
-                disabled = {error!= "" ? false : true} onClick={()=> navigate('/signUp')}>Create User</button>
+                 onClick={()=> navigate('/signUp')}>Create User</button>
                 {error ? <div className = "error">{error}</div> : null}
               </form>
             </div>

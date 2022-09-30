@@ -17,7 +17,13 @@ const userModel = new Schema({
     [{
         type : mongoose.Types.ObjectId,
         ref: 'Event'
-    }]
+    }],
+    bookingIds :[
+        {
+            type : mongoose.Types.ObjectId,
+            ref : 'Booking'   
+        }
+    ]
 });
 
 module.exports = mongoose.model("User", userModel);
