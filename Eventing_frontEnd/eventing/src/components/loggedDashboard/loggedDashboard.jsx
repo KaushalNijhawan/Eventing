@@ -16,6 +16,7 @@ const LoggedDashboard = () => {
   const cardModal = useRef(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [events, setEvents] = useState([]);
+  const [bookedEvents , setBookedEvents] = useState([]);
 
 
   const addEvent = (eventObj) => {
@@ -36,8 +37,49 @@ const LoggedDashboard = () => {
     if (store && store.getState() && store.getState().eventInfo) {
       setEvents(store.getState().eventInfo);
     }
-    console.log(currentUser)
+    if(currentUser && currentUser.bookingIds){
+      updateBookedEvents(currentUser.bookingIds);
+    }
+
   }, [currentUser]);
+
+  const updateBookedEvents = (bookingIds) =>{
+      if(bookingIds){
+        console.log(currentUser);
+         const headers = {
+          'Content-type': 'application/json',
+          'authorization': 'Bearer ' + currentUser.token
+         }
+         const requestBody = {
+          query: `
+              mutation{
+                  fetchBookingRelatedEvents(bookingList:"${bookingIds}"){
+                    eventList{
+                      _id,
+                      eventName,
+                      date,
+                      description,
+                      price
+                    }
+                  }
+                }
+              `
+      };
+
+         axios({
+          url:"http://localhost:3000/api",
+          method:'POST',
+          headers:headers,
+          data :JSON.stringify(requestBody) 
+         }).then((resp) =>{
+            if(resp && resp.data && resp.data.data && resp.data.data.fetchBookingRelatedEvents && resp.data.data.fetchBookingRelatedEvents.eventList){
+                setBookedEvents(resp.data.data.fetchBookingRelatedEvents.eventList);
+            }
+         }).catch((err)=>{
+          console.log(err);
+         })
+      }
+  }
 
   const openModal = (event) =>{
     if(cardModal && cardModal.current){
@@ -101,8 +143,8 @@ const LoggedDashboard = () => {
         <div className="cards-div">
           {events ? events.map((event, key) => {
             return (<>
-              <EventCards event={event} key={key} currentUser={currentUser} openModal = {(e) => openModal(e)}/>
-              <CardDetaialsModal key={key+10} ref={cardModal} currentUser={currentUser}/>
+              <EventCards event={event} key={event.title} currentUser={currentUser} openModal = {(e) => openModal(e)}/>
+              <CardDetaialsModal key={key+10} ref={cardModal} currentUser={currentUser} bookedEvents = {bookedEvents}/>
             </>);
           }) : null}
         </div>

@@ -126,12 +126,12 @@ module.exports = {
                 event : event._id,
                 user : user._id,
             }
+
             const custBooking = await new bookingModel(booking).save();
             let bookingId =  custBooking._doc._id;
             if(user && user.bookingIds){
                 user.bookingIds.push(bookingId);
                 await user.save();
-                console.log('user updated');
             }
             if(custBooking){
                 return {
@@ -191,23 +191,24 @@ module.exports = {
     },
     // always remeber here below the args comes first and the req params 
     fetchBookingRelatedEvents : async (args, req)=>{
-        if(req.isAuth){
-            throw new Error("User not Authenticated!")
+        if(!req.isAuth){
+            throw new Error("User not Authenticated!");
         }
         if(args && args.bookingList){
             console.log(args.bookingList);
             let bookingIds = args.bookingList;
             let eventObjList = [];
-           await bookingIds.map(async (id)=>{
-                let booking = await bookingModel.findById(id);
-                if(booking){
-                   let eventObj = await eventModel.findById(booking.event);
-                   eventObjList.push(eventObj);
-                   console.log('206 - ' + eventObjList);
+            for(let i = 0;i<bookingIds.length;i++){
+                let booking = await bookingModel.findById(bookingIds[i]);
+                console.log(booking);
+                if(booking && booking.event){
+                    let event = await eventModel.findById(booking.event);
+                    eventObjList.push(event);
                 }
-            });
-            console.log('209 - ' + eventObjList);
-            return eventObjList;
+            }
+            return {
+                eventList : eventObjList
+            };
         }
         return null;
 

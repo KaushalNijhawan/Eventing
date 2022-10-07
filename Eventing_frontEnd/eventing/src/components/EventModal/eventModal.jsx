@@ -38,40 +38,6 @@ const EventModal = forwardRef((props, ref) => {
         handleError() { setError('') }
     }));
 
-    const createBooking  = (eventId) =>{
-        const headers = {
-            'Content-Type': 'application/json',
-            'authorization': 'bearer ' + props.currentUser.token
-          }
-          const requestBody = {
-            query:
-              `mutation{
-                createBooking(eventID:"${eventId}"){
-                  _id,
-                  createdAt,
-                  updatedAt
-                }
-              }`
-          };
-          axios({
-            url: 'http://localhost:3000/api',
-            headers: headers,
-            method: 'POST',
-            data: JSON.stringify(requestBody)
-          }).then((resp) => {
-            if(resp && resp.data && resp.data.data && resp.data.data.createBooking){
-                dispatch(loggUser({
-                  ...props.currentUser,
-                  bookingIds : props.currentUser && props.currentUser.bookingIds ? props.currentUser.bookingIds.push(resp.data.data.createBooking) : 
-                  [resp.data.data.createBooking]
-                }));
-            }
-            console.log(resp);
-          }).catch((err) => {
-            console.log(err);
-          });
-    }
-
     const handleSubmit = (e) => {
         e.preventDefault();
         if (eventObj && eventObj.date && eventObj.desc && eventObj.price && eventObj.desc) {
@@ -117,7 +83,6 @@ const EventModal = forwardRef((props, ref) => {
                         },
                         id : id 
                     }
-                    createBooking(id); 
                     dispatch(addEvents(newEventObj));
                     props.addEvent(newEventObj);
                     setOpen(false);

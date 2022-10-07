@@ -36,7 +36,6 @@ const CardDetaialsModal = forwardRef((props, ref) => {
       setOpen(false);
     },
     setEventObj(event) {
-      console.log(event);
       setCurrentEventObj(event);
     }
   }));
@@ -63,18 +62,31 @@ const CardDetaialsModal = forwardRef((props, ref) => {
       data: JSON.stringify(requestBody)
     }).then((resp) => {
       if(resp && resp.data && resp.data.data && resp.data.data.createBooking){
-          dispatch(loggUser({
+        dispatch(loggUser({
             ...props.currentUser,
-            bookingIds : props.currentUser && props.currentUser.bookingIds ? props.currentUser.bookingIds.push(resp.data.data.createBooking) : 
-            [resp.data.data.createBooking]
+            bookingIds : props.currentUser && props.currentUser.bookingIds && props.currentUser.bookingIds.length > 0 ?
+            props.currentUser.bookingIds.push(resp.data.data.createBooking._id) : [resp.data.data.createBooking._id]
           }));
           setOpen(false);
       }
-      console.log(resp);
     }).catch((err) => {
       console.log(err);
     })
 
+  }
+
+  const disableButtonOrNot = ()=>{
+    if(props && event && props.bookedEvent){
+        props.bookedEvent.map((eve)=>{
+          if(eve && eve._id && event._id){
+              if(eve._id === event.id){
+                return true;
+              }
+          }
+        });
+        return false;
+    }
+    return false;
   }
 
   return (
@@ -110,7 +122,7 @@ const CardDetaialsModal = forwardRef((props, ref) => {
               <button className="btn btn-danger" onClick={() => setOpen(false)}>Cancel</button>
             </div>
             : <div className="button-class">
-              <button className="btn btn-dark" onClick={initiateBooking}>Book</button>
+              <button className="btn btn-dark" onClick={initiateBooking} disabled ={disableButtonOrNot ? true : false}>Book</button>
               <button className="btn btn-danger" onClick={() => setOpen(false)}>Cancel</button>
             </div>
           }

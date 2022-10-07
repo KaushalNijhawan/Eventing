@@ -41,6 +41,9 @@ type LoggedUser{
     eventsList: [Event!],
     bookingIds:[ID!]
 }
+type EventList{
+    eventList  : [Event!]!
+}   
 
 type RootQuery{
     events: [Event!]!,
@@ -53,7 +56,7 @@ type RootMutation{
     createBooking(eventID : ID!):Booking,
     cancelBooking(bookingId : ID!):Booking,
     loginUser(username : String , password : String) : LoggedUser
-    fetchBookingRelatedEvents(bookingList : [ID!]) : [Event] 
+    fetchBookingRelatedEvents(bookingList : [ID]!) : EventList
 }
 
 schema{
