@@ -14,7 +14,7 @@ const EventCards = (props) => {
     }
     const showDetails = () => {
         if (props && props.openModal) {
-            props.openModal(props.event);
+            props.openModal();
         }
     }
 

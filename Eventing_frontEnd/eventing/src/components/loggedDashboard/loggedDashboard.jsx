@@ -29,7 +29,7 @@ const LoggedDashboard = () => {
     if (store.getState().user) {
       setCurrentUser(store.getState().user);
     }
-
+    console.log(currentUser);
     if (currentUser) {
       getEvents();
     }
@@ -41,10 +41,10 @@ const LoggedDashboard = () => {
       updateBookedEvents(currentUser.bookingIds);
     }
 
-  }, [currentUser]);
+  },[currentUser]);
 
   const updateBookedEvents = (bookingIds) =>{
-      if(bookingIds){
+      if(bookingIds && bookingIds.length){
         console.log(currentUser);
          const headers = {
           'Content-type': 'application/json',
@@ -81,10 +81,10 @@ const LoggedDashboard = () => {
       }
   }
 
-  const openModal = (event) =>{
+  const openModal = () =>{
     if(cardModal && cardModal.current){
-      cardModal.current.setEventObj(event);
       cardModal.current.handleOpen();
+      cardModal.current.checkDisable();
     }
   }
 
@@ -143,8 +143,9 @@ const LoggedDashboard = () => {
         <div className="cards-div">
           {events ? events.map((event, key) => {
             return (<>
-              <EventCards event={event} key={event.title} currentUser={currentUser} openModal = {(e) => openModal(e)}/>
-              <CardDetaialsModal key={key+10} ref={cardModal} currentUser={currentUser} bookedEvents = {bookedEvents}/>
+              <EventCards event={event} key={event.title} currentUser={currentUser} openModal = {openModal}/>
+              <CardDetaialsModal key={key+10} ref={cardModal} currentUser={currentUser} bookedEvents = {bookedEvents} event={event}
+              triggerBookingFetch = {(e) => updateBookedEvents(e)}/>
             </>);
           }) : null}
         </div>

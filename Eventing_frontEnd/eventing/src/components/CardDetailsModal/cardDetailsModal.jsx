@@ -8,7 +8,8 @@ import { useState } from 'react';
 import "./cardModal.css";
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { loggUser } from '../../Redux/resolvers/userResolver';
+import { addBookingIds, loggUser } from '../../Redux/resolvers/userResolver';
+import store from '../../Redux/state';
 const style = {
   position: 'absolute',
   top: '50%',
@@ -23,8 +24,8 @@ const style = {
 };
 const CardDetaialsModal = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);
-  const [event, setCurrentEventObj] = useState({});
-  const [logUser, setLogUser] = useState("");
+  const [event, setCurrentEventObj] = useState(props.event);
+  const [buttonDisable , setButtonDisable] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -35,8 +36,8 @@ const CardDetaialsModal = forwardRef((props, ref) => {
     handleClose() {
       setOpen(false);
     },
-    setEventObj(event) {
-      setCurrentEventObj(event);
+    checkDisable(){
+      disableButtonOrNot();
     }
   }));
 
@@ -57,16 +58,19 @@ const CardDetaialsModal = forwardRef((props, ref) => {
     };
     axios({
       url: 'http://localhost:3000/api',
-      headers: headers,
+      headers: headers, 
       method: 'POST',
       data: JSON.stringify(requestBody)
     }).then((resp) => {
       if(resp && resp.data && resp.data.data && resp.data.data.createBooking){
-        dispatch(loggUser({
-            ...props.currentUser,
+        dispatch(addBookingIds({
+          ...props.currentUser,
             bookingIds : props.currentUser && props.currentUser.bookingIds && props.currentUser.bookingIds.length > 0 ?
             props.currentUser.bookingIds.push(resp.data.data.createBooking._id) : [resp.data.data.createBooking._id]
           }));
+          if(store.getState().bookingIds && store.getState().bookingIds.length > 0 ){
+            props.triggerBookingFetch(store.getState().bookingIds);
+          }
           setOpen(false);
       }
     }).catch((err) => {
@@ -75,18 +79,19 @@ const CardDetaialsModal = forwardRef((props, ref) => {
 
   }
 
-  const disableButtonOrNot = ()=>{
-    if(props && event && props.bookedEvent){
-        props.bookedEvent.map((eve)=>{
+  const disableButtonOrNot = () =>{
+    if(props && event && props.bookedEvents && props.bookedEvents.length > 0){
+      props.bookedEvents.map((eve)=>{
           if(eve && eve._id && event._id){
-              if(eve._id === event.id){
-                return true;
+              if(eve._id === event._id){
+                console.log('here');
+                setButtonDisable(true);
               }
           }
         });
-        return false;
+    }else{  
+      setButtonDisable(false);
     }
-    return false;
   }
 
   return (
@@ -122,7 +127,7 @@ const CardDetaialsModal = forwardRef((props, ref) => {
               <button className="btn btn-danger" onClick={() => setOpen(false)}>Cancel</button>
             </div>
             : <div className="button-class">
-              <button className="btn btn-dark" onClick={initiateBooking} disabled ={disableButtonOrNot ? true : false}>Book</button>
+              <button className="btn btn-dark" onClick={initiateBooking} disabled ={buttonDisable}>Book</button>
               <button className="btn btn-danger" onClick={() => setOpen(false)}>Cancel</button>
             </div>
           }

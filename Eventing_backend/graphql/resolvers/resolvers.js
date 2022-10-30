@@ -144,9 +144,13 @@ module.exports = {
             return null;
         }
     },
-    cancelBooking : async (args)=>{
+    cancelBooking : async (args, req)=>{
+        if(!req.isAuth){
+            throw new Error("User is not Authenticated!");
+        }
+
         if(args && args.bookingId){
-            let bookingId = bookingModel.findById(args.bookingId);
+            let bookingId = await bookingModel.findById(args.bookingId);
             let eventId = bookingId && bookingId['event'] ? bookingId['event'] : null;
             let userId =  bookingId && bookingId['user'] ? bookingId['user'] : null;
             let user,event;
@@ -154,12 +158,23 @@ module.exports = {
                 user = await userModel.findById(userId); 
                 event = await eventModel.findById(eventId);
             }
-            await bookingModel.deleteOne({_id : {$in : bookingId}});
-            return {
-                ...bookingId,
+
+            if(user && user.bookingIds){
+                let index = user.bookingIds.indexOf(args.bookingId);
+                user.bookingIds.splice(index,1);
+                await user.save();
+            }
+
+            await bookingModel.deleteOne({_id : {$in : bookingId._id}});
+            let response = {
+                _id : bookingId._doc._id,
+                createdAt : bookingId._doc.createdAt,
+                updatedAt : bookingId._doc.updatedAt,
                 user : user,
                 event : event
-            }
+            };
+            console.log(response);
+            return response;
         }
     },
     loginUser : async ({username, password})=>{
@@ -176,7 +191,6 @@ module.exports = {
                         eventList.push(event);
                     });
                 }
-                console.log(user);
                 return {
                     ...user,
                     username : user.username,
@@ -195,12 +209,10 @@ module.exports = {
             throw new Error("User not Authenticated!");
         }
         if(args && args.bookingList){
-            console.log(args.bookingList);
             let bookingIds = args.bookingList;
             let eventObjList = [];
             for(let i = 0;i<bookingIds.length;i++){
                 let booking = await bookingModel.findById(bookingIds[i]);
-                console.log(booking);
                 if(booking && booking.event){
                     let event = await eventModel.findById(booking.event);
                     eventObjList.push(event);
