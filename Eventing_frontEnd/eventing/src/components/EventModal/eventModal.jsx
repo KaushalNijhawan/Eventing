@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import "./eventModal.css";
 import { addEvents, loggUser } from '../../Redux/resolvers/userResolver';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -31,6 +32,7 @@ const EventModal = forwardRef((props, ref) => {
     const dispatch = useDispatch();
     const [error, setError] = useState('');
     const handleClose = () => { setOpen(false) }
+    const navigate = useNavigate();
 
     useImperativeHandle(ref, () => ({
         handleOpen() { setOpen(true) },
@@ -88,7 +90,12 @@ const EventModal = forwardRef((props, ref) => {
                     setOpen(false);
                 }else{
                 }
-            }).catch((err) => {
+            }).catch((error) => {
+                if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
+                    error.response.data.errors[0].message === "Session Timeout!"){
+                        dispatch(loggUser(null));
+                        navigate("/");
+                }
                 setError("Fields Suplied are Invalid!");
             })
         } else {

@@ -9,6 +9,9 @@ import Navbar from './navbar';
 import EventCards from './EventCards';
 import axios from 'axios';
 import CardDetaialsModal from '../CardDetailsModal/cardDetailsModal';
+import { useDispatch } from 'react-redux';
+import { loggUser } from '../../Redux/resolvers/userResolver';
+import { useNavigate } from 'react-router-dom';
 
 const LoggedDashboard = () => {
 
@@ -18,6 +21,8 @@ const LoggedDashboard = () => {
   const [events, setEvents] = useState([]);
   const [bookedEvents , setBookedEvents] = useState([]);
   const [clickedEvent , setClickedEvent] = useState(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
 
   const addEvent = (eventObj) => {
@@ -75,8 +80,12 @@ const LoggedDashboard = () => {
             if(resp && resp.data && resp.data.data && resp.data.data.fetchBookingRelatedEvents && resp.data.data.fetchBookingRelatedEvents.eventList){
                 setBookedEvents(resp.data.data.fetchBookingRelatedEvents.eventList);
             }
-         }).catch((err)=>{
-          console.log(err);
+         }).catch((error)=>{
+          if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
+            error.response.data.errors[0].message === "Session Timeout!"){
+                dispatch(loggUser(null));
+                navigate("/");
+            }
          })
       }
   }
@@ -121,8 +130,13 @@ const LoggedDashboard = () => {
         });
         setEvents(response.data.data.events);
         console.log(events);
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        console.log(error);
+        if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
+          error.response.data.errors[0].message === "Session Timeout!"){
+              dispatch(loggUser(null));
+              navigate("/");
+          }
       }
     }
   }

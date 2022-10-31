@@ -24,7 +24,7 @@ module.exports = {
     // if we want to fetch the req here than always pass args , req event if we are not passing any args from UI
     events : async(args , req)=>{
         if(!req.isAuth){
-            throw new Error('unauthenticated User!');
+            throw new Error('Session Timeout!');
         }
         const events = await eventModel.find();
         return events.map((event)=>{
@@ -45,7 +45,7 @@ module.exports = {
     },
     bookings : async(req)=>{
         if(!req.isAuth){
-            throw new Error('unauthenticated User!');
+            throw new Error('Session Timeout!');
         }
         const booking = await bookingModel.find();
         return booking.map((book)=>{
@@ -58,7 +58,7 @@ module.exports = {
     },
     createEvent : async (args, req)=>{
         if(!req.isAuth){
-            throw new Error('unauthenticated User!');
+            throw new Error('Session Timeout!');
         }
         let user = await userModel.findOne({username : {$in : req.userId}});  
         const custEvent = {
@@ -117,7 +117,7 @@ module.exports = {
     },
     createBooking :async (args, req)=>{
         if(!req.isAuth){
-            throw new Error('unauthenticated User!');
+            throw new Error('Session Timeout!');
         }
         if(args && args.eventID){
             let event = await eventModel.findById(args.eventID);
@@ -183,7 +183,7 @@ module.exports = {
             let passwordEncode = user && user.password ? user.password : '';
             let match = await bcrypt.compare(password, passwordEncode);
             if(match == true){
-                const token = jwt.sign({ foo: username },"longlongververyverylongstringthisoneis", {expiresIn : '1h'});
+                const token = jwt.sign({ foo: username },"longlongververyverylongstringthisoneis", {expiresIn : 60});
                 let eventList = [];
                 if(user && user.eventsList){
                     await user.eventsList.map(async (eid)=>{

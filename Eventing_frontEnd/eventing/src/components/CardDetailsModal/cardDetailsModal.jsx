@@ -10,6 +10,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addBookingIds, loggUser } from '../../Redux/resolvers/userResolver';
 import store from '../../Redux/state';
+import { useNavigate } from 'react-router-dom';
 const style = {
   position: 'absolute',
   top: '50%',
@@ -31,6 +32,7 @@ const CardDetaialsModal = forwardRef((props, ref) => {
     setCurrentEventObj(props.event);
   },[props.event]);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useImperativeHandle(ref, () => ({
     handleOpen() {
@@ -78,15 +80,17 @@ const CardDetaialsModal = forwardRef((props, ref) => {
             setOpen(false);
         }
       }
-    }).catch((err) => {
-      console.log(err);
+    }).catch((error) => {
+      if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
+        error.response.data.errors[0].message === "Session Timeout!"){
+            dispatch(loggUser(null));
+            navigate("/");
+        }
     })
 
   }
 
   const disableButtonOrNot = () =>{
-    console.log(props);
-    console.log(event);
     if(props && event && props.bookedEvents && props.bookedEvents.length > 0){
       props.bookedEvents.map((eve)=>{
           if(eve && eve._id && event._id){
