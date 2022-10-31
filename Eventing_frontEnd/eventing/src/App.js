@@ -13,7 +13,7 @@ function App() {
     console.log(user);
     if(user && user.username){
       setCurrentUser(user);
-      navigate("/logged/"+currentUser.username);
+      navigate("/logged/"+user.username);
     }else{
       navigate("/");
     }

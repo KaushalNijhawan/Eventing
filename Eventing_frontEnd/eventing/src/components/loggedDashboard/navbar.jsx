@@ -2,7 +2,9 @@ import "./dasboard.css";
 import { Person } from '@mui/icons-material';
 import EventIcon from '@mui/icons-material/Event';
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 const Navbar = (props) => {
+    const {currentUser} = props;
     return (
         <nav className="navbar fixed-top navbar-expand-lg navbar-light" style={{backgroundColor: 'rgb(15, 82, 186)'}}>
             <EventIcon className="navbar-brand" style={{ fontSize: "45px", color: 'white' }} />
@@ -13,7 +15,8 @@ const Navbar = (props) => {
             <div className="collapse navbar-collapse" id="navbarText">
                 <ul className="navbar-nav mr-auto">
                     <li className="nav-item active">
-                        <a className="nav-link" href="#" style={{ color: 'white' }}>Events</a>
+                        <Link className="nav-link" style={{ color: 'white' }} to={props && props.currentUser && props.currentUser.username
+                            ? "/logged/" + currentUser.username : ""}>Events</Link>
                     </li>
                 </ul>
                 <ul className="navbar-nav mr-auto">
@@ -23,7 +26,7 @@ const Navbar = (props) => {
                 </ul>
             </div>
             <div className="navEnd-text">
-                <span>{props && props.currentUser && props.currentUser.username ? props.currentUser.username : ''}<Person /></span>
+                <span>{props.currentUser && props.currentUser.username ? props.currentUser.username : ''}<Person /></span>
                 <a className="navbar-brand" href="#" style={{ color: 'white' }}>Logout</a>
             </div>
         </nav>

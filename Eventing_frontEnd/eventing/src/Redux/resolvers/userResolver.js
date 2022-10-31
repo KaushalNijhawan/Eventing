@@ -24,11 +24,16 @@ export const addBookingIds = createAction('addBookingIds' , (bookingIds)=>{
     }
 });
 
+export const updateBookingIds = createAction("updateBookingList" ,(bookingIds)=>{
+    return {
+        payload : bookingIds
+    }
+});
+
 export const userReducer = createReducer((initialState), (builder)=>{
     builder.addCase(loggUser , (state, action)=>{
         if(action && action.payload){
-            console.log(action.payload)
-            state.user = action.payload;
+            state.user = action.payload
         }
     })
     .addCase(addEvents, (state, action)=>{
@@ -38,10 +43,11 @@ export const userReducer = createReducer((initialState), (builder)=>{
     })
     .addCase(addBookingIds, (state, action)=>{
         if(action && action.payload && action.payload.bookingIds){
-            console.log(action);
-            console.log(state);
             state.bookingIds = [...state.bookingIds, action.payload.bookingIds[0]];
-            console.log(state.bookingIds);
+        }
+    }).addCase(updateBookingIds, (state, action)=>{
+        if(action && action.payload){
+            state.bookingIds = action.payload.bookingIds;
         }
     })
 });

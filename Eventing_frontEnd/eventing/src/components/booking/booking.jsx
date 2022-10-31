@@ -1,6 +1,9 @@
 import axios from "axios";
 import { useEffect, useRef } from "react";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { updateBookingIds } from "../../Redux/resolvers/userResolver";
 import store from "../../Redux/state";
 import Navbar from "../loggedDashboard/navbar";
 import "./booking.css";
@@ -10,6 +13,8 @@ const BookingList = () => {
     const [bookedEvents, setBookedEvents] = useState(null);
     const bookingCancel = useRef(null);
     const [currentIndex , setCurrentIndex] = useState(-1);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (store && store.getState() && store.getState().user) {
@@ -31,8 +36,14 @@ const BookingList = () => {
     }
 
     const cancelBooking = () =>{
-        console.log(currentIndex);
         if(currentIndex >=0 ){
+            if(bookedEvents && bookedEvents.length > 0 ){
+                bookedEvents.splice(currentIndex, 1);
+                setBookedEvents(bookedEvents);
+            }
+            console.log(bookedEvents);
+            console.log(store.getState());
+
             let bookingId = currentUser.bookingIds[currentIndex] ? currentUser.bookingIds[currentIndex] : store.getState().bookingIds[currentIndex] ? 
             store.getState().bookingIds[currentIndex] :  null;
             if(bookingId){
@@ -60,9 +71,10 @@ const BookingList = () => {
                 }).then((resp)=>{
                     console.log(resp);
                     if(resp && resp.data && resp.data.data && resp.data.data.cancelBooking){
-                        bookedEvents.map((event)=>{
-
-                        })
+                        dispatch(updateBookingIds({
+                            bookingIds : bookedEvents
+                        }));
+                        navigate("/logged/user/booking");
                     }
                 }).catch((err)=>{
                     console.log(err);
@@ -115,7 +127,7 @@ const BookingList = () => {
     }
     return (
         <div className="parent-div">
-            <Navbar currentUser={currentUser ? currentUser : null} />i
+            <Navbar currentUser={currentUser ? currentUser : null} />
             <div className="header-text">
                 <h2>Booking Lists</h2>
             </div>

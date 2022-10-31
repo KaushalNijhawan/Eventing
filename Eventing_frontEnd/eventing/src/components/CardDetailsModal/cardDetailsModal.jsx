@@ -24,9 +24,12 @@ const style = {
 };
 const CardDetaialsModal = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);
-  const [event, setCurrentEventObj] = useState(props.event);
+  const [event, setCurrentEventObj] = useState(null);
   const [buttonDisable , setButtonDisable] = useState(false);
 
+  useEffect(()=>{
+    setCurrentEventObj(props.event);
+  },[props.event]);
   const dispatch = useDispatch();
 
   useImperativeHandle(ref, () => ({
@@ -63,15 +66,17 @@ const CardDetaialsModal = forwardRef((props, ref) => {
       data: JSON.stringify(requestBody)
     }).then((resp) => {
       if(resp && resp.data && resp.data.data && resp.data.data.createBooking){
-        dispatch(addBookingIds({
-          ...props.currentUser,
-            bookingIds : props.currentUser && props.currentUser.bookingIds && props.currentUser.bookingIds.length > 0 ?
-            props.currentUser.bookingIds.push(resp.data.data.createBooking._id) : [resp.data.data.createBooking._id]
-          }));
-          if(store.getState().bookingIds && store.getState().bookingIds.length > 0 ){
-            props.triggerBookingFetch(store.getState().bookingIds);
-          }
-          setOpen(false);
+        console.log(props.currentUser);
+        if(props.currentUser){
+          dispatch(addBookingIds({
+              bookingIds : [resp.data.data.createBooking._id]
+            }));
+        }
+        let bookingIdInStore = store.getState().bookingIds;
+        if(bookingIdInStore && bookingIdInStore.length > 0 ){
+            props.triggerBookingFetch(bookingIdInStore);
+            setOpen(false);
+        }
       }
     }).catch((err) => {
       console.log(err);
@@ -80,6 +85,8 @@ const CardDetaialsModal = forwardRef((props, ref) => {
   }
 
   const disableButtonOrNot = () =>{
+    console.log(props);
+    console.log(event);
     if(props && event && props.bookedEvents && props.bookedEvents.length > 0){
       props.bookedEvents.map((eve)=>{
           if(eve && eve._id && event._id){
@@ -109,18 +116,18 @@ const CardDetaialsModal = forwardRef((props, ref) => {
           <div className="bodyCard">
             <div className="heading">
               <span style={{ fontSize: '30px' }}><DescriptionIcon /></span>
-              <span className="text-card">{event.desc ? event.desc.toString().toUpperCase() : event.description ? event.description.toString().toUpperCase() : ""}</span>
+              <span className="text-card">{event && event.desc ? event.desc.toString().toUpperCase() : event && event.description ? event.description.toString().toUpperCase() : ""}</span>
             </div>
             <div>
               <span style={{ fontSize: '30px' }}><DateRangeIcon /></span>
-              <span className="text-card">{event.date ? event.date.toString().toUpperCase() : ''}</span>
+              <span className="text-card">{event && event.date ? event.date.toString().toUpperCase() : ''}</span>
             </div>
             <div>
               <span style={{ fontSize: '30px' }}><AttachMoneyIcon /></span>
-              <span className="text-card">{event.price ? event.price.toString().toUpperCase() : ''}</span>
+              <span className="text-card">{event && event.price ? event.price.toString().toUpperCase() : ''}</span>
             </div>
           </div>
-          {props && props.currentUser && props.currentUser.username && event.creator && event.creator.username
+          {props && props.currentUser && props.currentUser.username && event && event.creator && event.creator.username
             && event.creator.username == props.currentUser.username ?
             <div className="button-class">
               <button className="btn btn-dark" disabled={true}>You are the Creator</button>

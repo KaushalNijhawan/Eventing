@@ -17,6 +17,7 @@ const LoggedDashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [events, setEvents] = useState([]);
   const [bookedEvents , setBookedEvents] = useState([]);
+  const [clickedEvent , setClickedEvent] = useState(null);
 
 
   const addEvent = (eventObj) => {
@@ -26,10 +27,10 @@ const LoggedDashboard = () => {
   }
 
   useEffect(() => {
-    if (store.getState().user) {
-      setCurrentUser(store.getState().user);
+    let user = store.getState().user;
+    if (user) {
+      setCurrentUser(user);
     }
-    console.log(currentUser);
     if (currentUser) {
       getEvents();
     }
@@ -45,8 +46,7 @@ const LoggedDashboard = () => {
 
   const updateBookedEvents = (bookingIds) =>{
       if(bookingIds && bookingIds.length){
-        console.log(currentUser);
-         const headers = {
+        const headers = {
           'Content-type': 'application/json',
           'authorization': 'Bearer ' + currentUser.token
          }
@@ -81,8 +81,10 @@ const LoggedDashboard = () => {
       }
   }
 
-  const openModal = () =>{
+  const openModal = (event) =>{
     if(cardModal && cardModal.current){
+      console.log(event);
+      setClickedEvent(event);
       cardModal.current.handleOpen();
       cardModal.current.checkDisable();
     }
@@ -118,6 +120,7 @@ const LoggedDashboard = () => {
           headers: headers
         });
         setEvents(response.data.data.events);
+        console.log(events);
       } catch (err) {
         console.log(err);
       }
@@ -141,13 +144,13 @@ const LoggedDashboard = () => {
         </div>
         <EventModal ref={modalRef} currentUser={currentUser} addEvent={(event) => addEvent(event)} />
         <div className="cards-div">
-          {events ? events.map((event, key) => {
+          {events && events.length > 0 ? events.map((event, i) => {
             return (<>
-              <EventCards event={event} key={event.title} currentUser={currentUser} openModal = {openModal}/>
-              <CardDetaialsModal key={key+10} ref={cardModal} currentUser={currentUser} bookedEvents = {bookedEvents} event={event}
-              triggerBookingFetch = {(e) => updateBookedEvents(e)}/>
+              <EventCards event={event} key={i} currentUser={currentUser} openModal = {(e) => openModal(e)}/>
             </>);
           }) : null}
+          <CardDetaialsModal ref={cardModal} currentUser={currentUser} bookedEvents = {bookedEvents} event={clickedEvent}
+              triggerBookingFetch = {(e) => updateBookedEvents(e)}/>
         </div>
       </div>
     </div>
