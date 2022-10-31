@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updateBookingIds } from "../../Redux/resolvers/userResolver";
+import { loggUser, updateBookingIds } from "../../Redux/resolvers/userResolver";
 import store from "../../Redux/state";
 import Navbar from "../loggedDashboard/navbar";
 import "./booking.css";
@@ -74,6 +74,10 @@ const BookingList = () => {
                         dispatch(updateBookingIds({
                             bookingIds : bookedEvents
                         }));
+                        dispatch(loggUser({
+                            ...currentUser,
+                            bookingIds : bookedEvents 
+                    }));
                         navigate("/logged/user/booking");
                     }
                 }).catch((err)=>{
