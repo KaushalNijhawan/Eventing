@@ -173,7 +173,6 @@ module.exports = {
                 user : user,
                 event : event
             };
-            console.log(response);
             return response;
         }
     },
@@ -209,6 +208,7 @@ module.exports = {
             throw new Error("User not Authenticated!");
         }
         if(args && args.bookingList){
+            console.log(args.bookingList);
             let bookingIds = args.bookingList;
             let eventObjList = [];
             for(let i = 0;i<bookingIds.length;i++){
