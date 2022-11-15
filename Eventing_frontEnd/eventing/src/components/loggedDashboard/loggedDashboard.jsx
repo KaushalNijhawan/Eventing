@@ -12,18 +12,18 @@ import CardDetaialsModal from '../CardDetailsModal/cardDetailsModal';
 import { useDispatch } from 'react-redux';
 import { loggUser } from '../../Redux/resolvers/userResolver';
 import { useNavigate } from 'react-router-dom';
+import {Error_STATUS} from "../constants/constants";
 
 const LoggedDashboard = () => {
-
+  
   const modalRef = useRef(null);
   const cardModal = useRef(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [events, setEvents] = useState([]);
   const [bookedEvents , setBookedEvents] = useState([]);
-  const [clickedEvent , setClickedEvent] = useState(null);
-  const dispatch = useDispatch();
+  const [clickedEvent , setClickedEvent] = useState({eventInfo : null});
+  const dispatching = useDispatch();
   const navigate = useNavigate();
-
 
   const addEvent = (eventObj) => {
     if (eventObj && eventObj.price && eventObj.date && eventObj.desc && eventObj.title && eventObj.creator) {
@@ -79,23 +79,30 @@ const LoggedDashboard = () => {
          }).then((resp) =>{
             if(resp && resp.data && resp.data.data && resp.data.data.fetchBookingRelatedEvents && resp.data.data.fetchBookingRelatedEvents.eventList){
                 setBookedEvents(resp.data.data.fetchBookingRelatedEvents.eventList);
+            }else{
+              if(resp && resp.data && resp.data.errors && resp.data.errors[0].message &&
+                (resp.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
+                  || resp.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
+                  dispatching(loggUser(null));
+                  navigate("/");
+                }
             }
          }).catch((error)=>{
           if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
-            error.response.data.errors[0].message === "Session Timeout!"){
-                dispatch(loggUser(null));
+            (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
+            || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
+                dispatching(loggUser(null));
                 navigate("/");
             }
          })
       }
   }
 
-  const openModal = (event) =>{
-    if(cardModal && cardModal.current){
-      console.log(event);
-      setClickedEvent(event);
-      cardModal.current.handleOpen();
-      cardModal.current.checkDisable();
+  const openModal = async (event) =>{
+    if(cardModal && cardModal.current && event){
+        await setClickedEvent(prevValue => ({...prevValue, eventInfo : event}));
+        cardModal.current.handleOpen();
+        cardModal.current.checkDisable();
     }
   }
 
@@ -128,13 +135,18 @@ const LoggedDashboard = () => {
           data: JSON.stringify(requestBody),
           headers: headers
         });
+        if(response && response.data && response.data.errors && response.data.errors[0].message &&
+          (response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
+            || response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
+            dispatching(loggUser(null));
+            navigate("/");
+          }
         setEvents(response.data.data.events);
-        console.log(events);
       } catch (error) {
-        console.log(error);
         if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
-          error.response.data.errors[0].message === "Session Timeout!"){
-              dispatch(loggUser(null));
+          (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
+            || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
+              dispatching(loggUser(null));
               navigate("/");
           }
       }
@@ -163,8 +175,8 @@ const LoggedDashboard = () => {
               <EventCards event={event} key={i} currentUser={currentUser} openModal = {(e) => openModal(e)}/>
             </>);
           }) : null}
-          <CardDetaialsModal ref={cardModal} currentUser={currentUser} bookedEvents = {bookedEvents} event={clickedEvent}
-              triggerBookingFetch = {(e) => updateBookedEvents(e)}/>
+        <CardDetaialsModal ref={cardModal} currentUser={currentUser} bookedEvents = {bookedEvents} event={clickedEvent.eventInfo}
+          triggerBookingFetch = {(e) => updateBookedEvents(e)}/>
         </div>
       </div>
     </div>

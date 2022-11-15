@@ -4,6 +4,8 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loggUser } from '../../../Redux/resolvers/userResolver';
+import {Error_STATUS} from "../../constants/constants";
+
 const Login = () => {
     const [loginUser, setLoginUser] = useState({
         username: "",
@@ -30,20 +32,24 @@ const Login = () => {
                 'Content-Type': 'application/json',
                 'Authorization': 'JWT fefege...'
             }
-            let requestBOdy = {
-                query: `mutation{
-                    loginUser(username:"${loginUser.username}", password:"${loginUser.password}"){
+            let requestBody = {
+                query: `mutation LoginUser($username : String , $password: String ){
+                    loginUser(username:$username, password:$password){
                       username,
                       token,
                       bookingIds
                     }
-                  }`
+                  }`,
+                  variables:{
+                    username : loginUser.username,
+                    password : loginUser.password
+                  }
             };
             axios({
                 url: "http://localhost:3000/api",
                 method: "POST",
                 headers: headers,
-                data: JSON.stringify(requestBOdy)
+                data: JSON.stringify(requestBody)
             }).then((resp) => {
                 if (resp && resp.data) {
                     setError(resp.data && resp.data.errors && resp.data.errors[0].message ? resp.data.errors[0].message : "");
@@ -63,7 +69,7 @@ const Login = () => {
             }).catch((error) => {
                 setError("User Not Present, try Signup!");
                 if (error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
-                    error.response.data.errors[0].message === "Session Timeout!") {
+                    error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT) {
                     dispatch(loggUser(null));
                     navigate("/");
                 }

@@ -126,21 +126,21 @@ module.exports = {
                 event : event._id,
                 user : user._id,
             }
-
+            
             const custBooking = await new bookingModel(booking).save();
-            let bookingId =  custBooking._doc._id;
-            if(user && user.bookingIds){
-                user.bookingIds.push(bookingId);
-                await user.save();
-            }
-            if(custBooking){
-                return {
-                    ...booking,
-                    createdAt :  custBooking._doc.createdAt,
-                    updatedAt : custBooking._doc.updatedAt,
-                    _id: custBooking._doc._id
+                let bookingId =  custBooking._doc._id;
+                if(user && user.bookingIds){
+                    user.bookingIds.push(bookingId);
+                    await user.save();
                 }
-            }
+                if(custBooking){
+                    return {
+                        ...booking,
+                        createdAt :  custBooking._doc.createdAt,
+                        updatedAt : custBooking._doc.updatedAt,
+                        _id: custBooking._doc._id
+                    }
+                }
             return null;
         }
     },
@@ -208,7 +208,6 @@ module.exports = {
             throw new Error("User not Authenticated!");
         }
         if(args && args.bookingList){
-            console.log(args.bookingList);
             let bookingIds = args.bookingList;
             let eventObjList = [];
             for(let i = 0;i<bookingIds.length;i++){

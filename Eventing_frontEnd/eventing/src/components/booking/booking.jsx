@@ -8,6 +8,7 @@ import store from "../../Redux/state";
 import Navbar from "../loggedDashboard/navbar";
 import "./booking.css";
 import BookingAlertPopup from "./bookingAlertPopup";
+import  {Error_STATUS} from "../constants/constants";
 const BookingList = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [bookedEvents, setBookedEvents] = useState(null);
@@ -53,14 +54,17 @@ const BookingList = () => {
                 }
 
                 const requestBody = {
-                    query: `mutation{
-                        cancelBooking(bookingId:"${bookingId}"){
+                    query: `mutation CancelBoooking($id : ID!){
+                        cancelBooking(bookingId:$id){
                           _id,
                           event{
                             _id
                           }
                         }
-                      }`
+                      }`,
+                      variables:{
+                        id : bookingId
+                      }
                 };
 
                 axios({
@@ -79,10 +83,18 @@ const BookingList = () => {
                             bookingIds: bookedEvents
                         }));
                         navigate("/logged/user/booking");
+                    }else{
+                        if(resp && resp.data && resp.data.errors && resp.data.errors[0].message &&
+                          (resp.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT || 
+                            resp.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
+                            dispatch(loggUser(null));
+                            navigate("/");
+                          }
                     }
                 }).catch((error) => {
                     if (error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
-                        error.response.data.errors[0].message === "Session Timeout!") {
+                        (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
+                        || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)) {
                         dispatch(loggUser(null));
                         navigate("/");
                     }
@@ -100,12 +112,11 @@ const BookingList = () => {
                 'Content-type': 'application/json',
                 'authorization': 'Bearer ' + currentUser.token
             }
-            console.log(currentUser)
-            console.log(bookingList);
+            // here below i have defined variables section to indicate the graphQL that I am sending variables which is a better way of sending variables to graphQL like Array or String or any kind of Variables
             const requestBody = {
                 query: `
-                    mutation{
-                        fetchBookingRelatedEvents(bookingList:"${bookingList}"){
+                    mutation FetchBookingRelatedEvents($list: [String]!){
+                        fetchBookingRelatedEvents(bookingList:$list){
                           eventList{
                             _id,
                             eventName,
@@ -115,7 +126,10 @@ const BookingList = () => {
                           }
                         }
                       }
-                    `
+                    `,
+                    variables:{
+                        list : bookingList
+                    }
             }
             axios({
                 headers: headers,
@@ -127,10 +141,19 @@ const BookingList = () => {
                 ) {
                     setBookedEvents(res.data.data.fetchBookingRelatedEvents.eventList);
                     console.log(bookedEvents)
-                }
+                }else{
+                    console.log(res.data);
+                    if(res && res.data && res.data.errors && res.data.errors[0].message &&
+                      (res.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT || 
+                        res.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
+                        dispatch(loggUser(null));
+                        navigate("/");
+                      }
+                  }
             }).catch((error) => {
                 if (error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
-                    error.response.data.errors[0].message === "Session Timeout!") {
+                    (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
+                        || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)) {
                     dispatch(loggUser(null));
                     navigate("/");
                 }
@@ -146,7 +169,7 @@ const BookingList = () => {
             <div className="book-list">
                 {currentUser && bookedEvents ? bookedEvents.map((book, i) => {
                     return (
-                        <div key={book._id} style={{ backgroundColor: 'white', width: '60%', marginLeft: '5%', display: 'flex', justifyContent: 'space-between', borderRadius: '8px', height: '100%', alignItems: 'center' }}>
+                        <div key={book._id} style={{ backgroundColor: 'white', width: '60%', marginLeft: '5%',flexDirection:'column',  display: 'flex', justifyContent: 'space-between', borderRadius: '8px', height: '100%', alignItems: 'center' }}>
                             <div style={{ width: '50%', fontSize: '30px' }}>{book.eventName + " - " + book.date}</div>
                             <div style={{ marginTop: '4px' }}><button className="btn btn-danger" onClick={() => handleCancelClick(i)}>Cancel</button></div>
                         </div>

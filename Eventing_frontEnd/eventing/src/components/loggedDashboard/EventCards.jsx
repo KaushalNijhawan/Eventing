@@ -1,19 +1,7 @@
-import { useEffect } from "react";
 import "./eventCards.css";
-import Tooltip from '@mui/material/Tooltip';
 const EventCards = (props) => {
-    const sameUserOrNot = () => {
-        if (props && props.event && props.currentUser) {
-            let usernameCurrent = props.currentUser.username ? props.currentUser.username : '';
-            let eventUser = props.event && props.event.creator ? props.event.creator.username : '';
-            if (usernameCurrent && eventUser) {
-                return usernameCurrent === eventUser;
-            }
-        }
-        return false;
-    }
     const showDetails = () => {
-        if (props && props.openModal) {
+        if (props && props.event) {
             props.openModal(props.event);
         }
     }

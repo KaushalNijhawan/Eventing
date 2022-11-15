@@ -56,7 +56,7 @@ type RootMutation{
     createBooking(eventID : ID!):Booking,
     cancelBooking(bookingId : ID!):Booking,
     loginUser(username : String , password : String) : LoggedUser
-    fetchBookingRelatedEvents(bookingList : [ID]!) : EventList
+    fetchBookingRelatedEvents(bookingList : [String]!) : EventList
 }
 
 schema{

@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { addBookingIds, loggUser } from '../../Redux/resolvers/userResolver';
 import store from '../../Redux/state';
 import { useNavigate } from 'react-router-dom';
+import {Error_STATUS} from "../constants/constants";
 const style = {
   position: 'absolute',
   top: '50%',
@@ -79,10 +80,18 @@ const CardDetaialsModal = forwardRef((props, ref) => {
             props.triggerBookingFetch(bookingIdInStore);
             setOpen(false);
         }
+      }else{
+        if(resp && resp.data && resp.data.errors && resp.data.errors[0].message &&
+          (resp.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT || 
+            resp.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
+            dispatch(loggUser(null));
+            navigate("/");
+          }
       }
     }).catch((error) => {
       if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
-        error.response.data.errors[0].message === "Session Timeout!"){
+        (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT ||
+          error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
             dispatch(loggUser(null));
             navigate("/");
         }
@@ -91,6 +100,8 @@ const CardDetaialsModal = forwardRef((props, ref) => {
   }
 
   const disableButtonOrNot = () =>{
+    console.log(props);
+    let event = props.event;
     if(props && event && props.bookedEvents && props.bookedEvents.length > 0){
       props.bookedEvents.map((eve)=>{
           if(eve && eve._id && event._id){

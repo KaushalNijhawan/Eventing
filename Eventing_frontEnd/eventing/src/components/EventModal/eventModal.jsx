@@ -7,6 +7,7 @@ import "./eventModal.css";
 import { addEvents, loggUser } from '../../Redux/resolvers/userResolver';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {Error_STATUS} from "../constants/constants";
 const style = {
     position: 'absolute',
     top: '50%',
@@ -89,10 +90,18 @@ const EventModal = forwardRef((props, ref) => {
                     props.addEvent(newEventObj);
                     setOpen(false);
                 }else{
-                }
+                    if(resp && resp.data && resp.data.errors && resp.data.errors[0].message &&
+                        (resp.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT || 
+                            resp.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
+                        dispatch(loggUser(null));
+                        navigate("/");
+                      }
+                  }
             }).catch((error) => {
+                console.log(error);
                 if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
-                    error.response.data.errors[0].message === "Session Timeout!"){
+                    (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
+                        || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
                         dispatch(loggUser(null));
                         navigate("/");
                 }
