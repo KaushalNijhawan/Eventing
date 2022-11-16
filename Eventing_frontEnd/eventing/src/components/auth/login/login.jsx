@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addBookingIds, loggUser, resetState, updateBookingIds } from '../../../Redux/resolvers/userResolver';
 import {Error_STATUS} from "../../constants/constants";
-
 const Login = () => {
     const [loginUser, setLoginUser] = useState({
         username: "",
@@ -25,6 +24,18 @@ const Login = () => {
         }
     }
 
+    const localStorageDetails=(tokenObject)=>{
+    
+        localStorage.setItem('user', JSON.stringify(tokenObject.userObject));
+        
+        setTimeout(()=>{
+            localStorage.clear();
+            dispatch(resetState());
+            navigate("");    
+        }, tokenObject.expiry*1000);
+    
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (loginUser) {
@@ -37,7 +48,8 @@ const Login = () => {
                     loginUser(username:$username, password:$password){
                       username,
                       token,
-                      bookingIds
+                      bookingIds,
+                      expiresIn
                     }
                   }`,
                   variables:{
@@ -67,6 +79,12 @@ const Login = () => {
                                     bookingIds :  responseObject.bookingIds
                                 }));
                             }
+                            
+                            let tokenObject = {
+                                userObject : responseObject,
+                                expiry : responseObject.expiresIn               
+                            }
+                            localStorageDetails(tokenObject);
                             navigate("/logged/" + responseObject.username);
                         }
                     }

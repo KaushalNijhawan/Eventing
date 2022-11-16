@@ -176,7 +176,7 @@ module.exports = {
             let passwordEncode = user && user.password ? user.password : '';
             let match = await bcrypt.compare(password, passwordEncode);
             if(match == true){
-                const token = jwt.sign({ foo: username },"longlongververyverylongstringthisoneis", {expiresIn : "1h"});
+                const token = jwt.sign({ foo: username },"longlongververyverylongstringthisoneis", {expiresIn : 60});
                 let eventList = [];
                 if(user && user.eventsList){
                     await user.eventsList.map(async (eid)=>{
@@ -189,7 +189,8 @@ module.exports = {
                     username : user.username,
                     token : token,
                     eventList : eventList,
-                    bookingIds : user.bookingIds
+                    bookingIds : user.bookingIds,
+                    expiresIn : 60*15
                 };
             }else{
                 throw new Error('Username or Password is Invalid!');

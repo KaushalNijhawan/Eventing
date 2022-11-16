@@ -3,19 +3,13 @@ import { Person } from '@mui/icons-material';
 import EventIcon from '@mui/icons-material/Event';
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loggUser } from "../../Redux/resolvers/userResolver";
+import { resetState } from "../../Redux/resolvers/userResolver";
 const Navbar = (props) => {
     const {currentUser} = props;
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const logOutSession=()=>{
-        dispatch(loggUser({
-            ...currentUser,
-            username :"",
-            loggedIn:false,
-            token:'',
-            bookingids:[]
-        }));
+        dispatch(resetState());
 
         navigate("/");
     }

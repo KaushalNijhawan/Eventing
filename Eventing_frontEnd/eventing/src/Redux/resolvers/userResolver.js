@@ -62,6 +62,7 @@ export const userReducer = createReducer((initialState), (builder)=>{
     }).addCase(resetState, (state, action)=>{
         if(action && action.payload){
             state = action.payload;
+            localStorage.clear();
         }
     })
 });

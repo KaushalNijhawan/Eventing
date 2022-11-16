@@ -39,7 +39,8 @@ type LoggedUser{
     username : String!,
     token : String!,
     eventsList: [Event!],
-    bookingIds:[ID!]
+    bookingIds:[ID!],
+    expiresIn : Int
 }
 type EventList{
     eventList  : [Event!]!
