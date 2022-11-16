@@ -158,22 +158,16 @@ module.exports = {
                 user = await userModel.findById(userId); 
                 event = await eventModel.findById(eventId);
             }
-
+            let bookingIds = [];
             if(user && user.bookingIds){
                 let index = user.bookingIds.indexOf(args.bookingId);
                 user.bookingIds.splice(index,1);
+                bookingIds = user.bookingIds;
                 await user.save();
             }
 
             await bookingModel.deleteOne({_id : {$in : bookingId._id}});
-            let response = {
-                _id : bookingId._doc._id,
-                createdAt : bookingId._doc.createdAt,
-                updatedAt : bookingId._doc.updatedAt,
-                user : user,
-                event : event
-            };
-            return response;
+            return bookingIds;
         }
     },
     loginUser : async ({username, password})=>{
@@ -182,7 +176,7 @@ module.exports = {
             let passwordEncode = user && user.password ? user.password : '';
             let match = await bcrypt.compare(password, passwordEncode);
             if(match == true){
-                const token = jwt.sign({ foo: username },"longlongververyverylongstringthisoneis", {expiresIn : 60});
+                const token = jwt.sign({ foo: username },"longlongververyverylongstringthisoneis", {expiresIn : "1h"});
                 let eventList = [];
                 if(user && user.eventsList){
                     await user.eventsList.map(async (eid)=>{

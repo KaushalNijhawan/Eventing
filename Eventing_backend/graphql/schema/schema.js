@@ -54,7 +54,7 @@ type RootMutation{
     createEvent(eventType : EventInput): Event,
     createUser(userDetails : UserInput) : User,
     createBooking(eventID : ID!):Booking,
-    cancelBooking(bookingId : ID!):Booking,
+    cancelBooking(bookingId : ID!):[ID]!,
     loginUser(username : String , password : String) : LoggedUser
     fetchBookingRelatedEvents(bookingList : [String]!) : EventList
 }

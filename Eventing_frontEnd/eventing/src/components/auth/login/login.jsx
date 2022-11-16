@@ -3,7 +3,7 @@ import './login.css';
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { loggUser } from '../../../Redux/resolvers/userResolver';
+import { addBookingIds, loggUser, resetState, updateBookingIds } from '../../../Redux/resolvers/userResolver';
 import {Error_STATUS} from "../../constants/constants";
 
 const Login = () => {
@@ -62,6 +62,11 @@ const Login = () => {
                                 loggedIn: true
                             };
                             dispatch(loggUser(responseObject));
+                            if(responseObject && responseObject.bookingIds){
+                                dispatch(updateBookingIds({
+                                    bookingIds :  responseObject.bookingIds
+                                }));
+                            }
                             navigate("/logged/" + responseObject.username);
                         }
                     }
@@ -70,7 +75,7 @@ const Login = () => {
                 setError("User Not Present, try Signup!");
                 if (error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
                     error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT) {
-                    dispatch(loggUser(null));
+                    dispatch(resetState());
                     navigate("/");
                 }
             })

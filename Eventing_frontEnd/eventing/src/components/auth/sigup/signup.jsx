@@ -56,14 +56,9 @@ const SignUp = () => {
                 if(resp && resp.data && resp.data.errors){
                     setError(resp.data.errors[0].message ? resp.data.errors[0].message : "");
                 }
-                if(error!= ""){
-                    // no error scenario;
-                }
-                console.log(resp);
                 navigate('/');
             }).catch((err) => {
                 setError("Something wrong with Server!");
-                console.log(err);
             })
         }
     }

@@ -32,7 +32,6 @@ const BookingAlertPopup = forwardRef((props,ref) => {
       }
 
       const confirmCancel = ()=>{
-        console.log(props);
         props.cancelBooking();
       }
 

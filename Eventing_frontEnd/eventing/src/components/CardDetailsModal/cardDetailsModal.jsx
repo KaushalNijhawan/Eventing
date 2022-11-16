@@ -8,7 +8,7 @@ import { useState } from 'react';
 import "./cardModal.css";
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { addBookingIds, loggUser } from '../../Redux/resolvers/userResolver';
+import { addBookingIds, loggUser, resetState } from '../../Redux/resolvers/userResolver';
 import store from '../../Redux/state';
 import { useNavigate } from 'react-router-dom';
 import {Error_STATUS} from "../constants/constants";
@@ -27,13 +27,13 @@ const style = {
 const CardDetaialsModal = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);
   const [event, setCurrentEventObj] = useState(null);
-  const [buttonDisable , setButtonDisable] = useState(false);
 
   useEffect(()=>{
     setCurrentEventObj(props.event);
   },[props.event]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [disableButton, setDisableButton]  = useState(false); 
 
   useImperativeHandle(ref, () => ({
     handleOpen() {
@@ -54,13 +54,16 @@ const CardDetaialsModal = forwardRef((props, ref) => {
     }
     const requestBody = {
       query:
-        `mutation{
-          createBooking(eventID:"${event._id}"){
+        `mutation CreateBooking($id : ID!){
+          createBooking(eventID:$id){
             _id,
             createdAt,
             updatedAt
           }
-        }`
+        }`,
+        variables:{
+          id : event._id
+        }
     };
     axios({
       url: 'http://localhost:3000/api',
@@ -69,11 +72,14 @@ const CardDetaialsModal = forwardRef((props, ref) => {
       data: JSON.stringify(requestBody)
     }).then((resp) => {
       if(resp && resp.data && resp.data.data && resp.data.data.createBooking){
-        console.log(props.currentUser);
         if(props.currentUser){
           dispatch(addBookingIds({
               bookingIds : [resp.data.data.createBooking._id]
-            }));
+          }));
+          let currentUser =  {...props.currentUser};
+          let currentBookingIds = store.getState().bookingIds;
+          currentUser.bookingIds = currentBookingIds;
+          dispatch(loggUser(currentUser));
         }
         let bookingIdInStore = store.getState().bookingIds;
         if(bookingIdInStore && bookingIdInStore.length > 0 ){
@@ -84,7 +90,7 @@ const CardDetaialsModal = forwardRef((props, ref) => {
         if(resp && resp.data && resp.data.errors && resp.data.errors[0].message &&
           (resp.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT || 
             resp.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
-            dispatch(loggUser(null));
+            dispatch(resetState());
             navigate("/");
           }
       }
@@ -92,7 +98,7 @@ const CardDetaialsModal = forwardRef((props, ref) => {
       if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
         (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT ||
           error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
-            dispatch(loggUser(null));
+            dispatch(resetState());
             navigate("/");
         }
     })
@@ -100,19 +106,16 @@ const CardDetaialsModal = forwardRef((props, ref) => {
   }
 
   const disableButtonOrNot = () =>{
-    console.log(props);
     let event = props.event;
+    setDisableButton(false);
     if(props && event && props.bookedEvents && props.bookedEvents.length > 0){
       props.bookedEvents.map((eve)=>{
           if(eve && eve._id && event._id){
               if(eve._id === event._id){
-                console.log('here');
-                setButtonDisable(true);
+                    setDisableButton(true);
               }
           }
         });
-    }else{  
-      setButtonDisable(false);
     }
   }
 
@@ -149,7 +152,7 @@ const CardDetaialsModal = forwardRef((props, ref) => {
               <button className="btn btn-danger" onClick={() => setOpen(false)}>Cancel</button>
             </div>
             : <div className="button-class">
-              <button className="btn btn-dark" onClick={initiateBooking} disabled ={buttonDisable}>Book</button>
+              <button className="btn btn-dark" onClick={initiateBooking} disabled ={disableButton}>Book</button>
               <button className="btn btn-danger" onClick={() => setOpen(false)}>Cancel</button>
             </div>
           }

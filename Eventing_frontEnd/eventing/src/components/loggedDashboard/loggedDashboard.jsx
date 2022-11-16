@@ -10,7 +10,7 @@ import EventCards from './EventCards';
 import axios from 'axios';
 import CardDetaialsModal from '../CardDetailsModal/cardDetailsModal';
 import { useDispatch } from 'react-redux';
-import { loggUser } from '../../Redux/resolvers/userResolver';
+import { loggUser, resetState } from '../../Redux/resolvers/userResolver';
 import { useNavigate } from 'react-router-dom';
 import {Error_STATUS} from "../constants/constants";
 
@@ -57,8 +57,8 @@ const LoggedDashboard = () => {
          }
          const requestBody = {
           query: `
-              mutation{
-                  fetchBookingRelatedEvents(bookingList:"${bookingIds}"){
+              mutation FetchBookingRelatedEvents($list: [String]!){
+                  fetchBookingRelatedEvents(bookingList:$list){
                     eventList{
                       _id,
                       eventName,
@@ -68,9 +68,11 @@ const LoggedDashboard = () => {
                     }
                   }
                 }
-              `
+              `,
+              variables:{
+                  list : bookingIds
+              }
       };
-
          axios({
           url:"http://localhost:3000/api",
           method:'POST',
@@ -83,7 +85,7 @@ const LoggedDashboard = () => {
               if(resp && resp.data && resp.data.errors && resp.data.errors[0].message &&
                 (resp.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
                   || resp.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
-                  dispatching(loggUser(null));
+                  dispatching(resetState());
                   navigate("/");
                 }
             }
@@ -91,7 +93,7 @@ const LoggedDashboard = () => {
           if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
             (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
             || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
-                dispatching(loggUser(null));
+                dispatching(resetState());
                 navigate("/");
             }
          })
@@ -138,7 +140,7 @@ const LoggedDashboard = () => {
         if(response && response.data && response.data.errors && response.data.errors[0].message &&
           (response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
             || response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
-            dispatching(loggUser(null));
+            dispatching(resetState());
             navigate("/");
           }
         setEvents(response.data.data.events);
@@ -146,7 +148,7 @@ const LoggedDashboard = () => {
         if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
           (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
             || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
-              dispatching(loggUser(null));
+              dispatching(resetState());
               navigate("/");
           }
       }

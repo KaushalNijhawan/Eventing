@@ -30,6 +30,16 @@ export const updateBookingIds = createAction("updateBookingList" ,(bookingIds)=>
     }
 });
 
+export const resetState = createAction("resetState", ()=>{
+    return {
+        payload : {
+            user :  null,
+            eventInfo:[],
+            bookingIds:[]
+        }
+    }
+});
+
 export const userReducer = createReducer((initialState), (builder)=>{
     builder.addCase(loggUser , (state, action)=>{
         if(action && action.payload){
@@ -46,8 +56,12 @@ export const userReducer = createReducer((initialState), (builder)=>{
             state.bookingIds = [...state.bookingIds, action.payload.bookingIds[0]];
         }
     }).addCase(updateBookingIds, (state, action)=>{
-        if(action && action.payload){
+        if(action && action.payload && action.payload.bookingIds){
             state.bookingIds = action.payload.bookingIds;
+        }
+    }).addCase(resetState, (state, action)=>{
+        if(action && action.payload){
+            state = action.payload;
         }
     })
 });
