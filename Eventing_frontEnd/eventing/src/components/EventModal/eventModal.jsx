@@ -73,7 +73,6 @@ const EventModal = forwardRef((props, ref) => {
                 url: 'http://localhost:3000/api',
                 data: JSON.stringify(responseBody)
             }).then((resp) => {
-                console.log(resp);
                 if(resp && resp.data && resp.data.data && resp.data.data.createEvent){
                     let id = resp.data.data.createEvent._id;
                     setError('');
@@ -98,7 +97,6 @@ const EventModal = forwardRef((props, ref) => {
                       }
                   }
             }).catch((error) => {
-                console.log(error);
                 if(error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
                     (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
                         || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){

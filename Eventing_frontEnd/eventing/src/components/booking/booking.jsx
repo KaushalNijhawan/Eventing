@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loggUser, updateBookingIds } from "../../Redux/resolvers/userResolver";
+import { loggUser, resetState, updateBookingIds } from "../../Redux/resolvers/userResolver";
 import store from "../../Redux/state";
 import Navbar from "../loggedDashboard/navbar";
 import "./booking.css";
@@ -42,8 +42,6 @@ const BookingList = () => {
                 bookedEvents.splice(currentIndex, 1);
                 setBookedEvents(bookedEvents);
             }
-            console.log(bookedEvents);
-            console.log(store.getState());
 
             let bookingId = currentUser.bookingIds[currentIndex] ? currentUser.bookingIds[currentIndex] : store.getState().bookingIds[currentIndex] ?
                 store.getState().bookingIds[currentIndex] : null;
@@ -55,12 +53,7 @@ const BookingList = () => {
 
                 const requestBody = {
                     query: `mutation CancelBoooking($id : ID!){
-                        cancelBooking(bookingId:$id){
-                          _id,
-                          event{
-                            _id
-                          }
-                        }
+                        cancelBooking(bookingId:$id)
                       }`,
                       variables:{
                         id : bookingId
@@ -73,21 +66,21 @@ const BookingList = () => {
                     headers: headers,
                     data: JSON.stringify(requestBody)
                 }).then((resp) => {
-                    console.log(resp);
                     if (resp && resp.data && resp.data.data && resp.data.data.cancelBooking) {
+                        let updatedIds = resp.data.data.cancelBooking;
                         dispatch(updateBookingIds({
-                            bookingIds: bookedEvents
+                            bookingIds: updatedIds
                         }));
                         dispatch(loggUser({
                             ...currentUser,
-                            bookingIds: bookedEvents
+                            bookingIds: updatedIds
                         }));
                         navigate("/logged/user/booking");
                     }else{
                         if(resp && resp.data && resp.data.errors && resp.data.errors[0].message &&
                           (resp.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT || 
                             resp.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
-                            dispatch(loggUser(null));
+                            dispatch(resetState());
                             navigate("/");
                           }
                     }
@@ -95,7 +88,7 @@ const BookingList = () => {
                     if (error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
                         (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
                         || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)) {
-                        dispatch(loggUser(null));
+                        dispatch(resetState());
                         navigate("/");
                     }
                 })
@@ -106,7 +99,6 @@ const BookingList = () => {
 
     const getCorrespondingEvents = (bookingList) => {
         if (bookingList) {
-            console.log(currentUser);
             let eventsBooked = [];
             const headers = {
                 'Content-type': 'application/json',
@@ -140,13 +132,11 @@ const BookingList = () => {
                 if (res.data && res.data.data && res.data.data.fetchBookingRelatedEvents && res.data.data.fetchBookingRelatedEvents.eventList
                 ) {
                     setBookedEvents(res.data.data.fetchBookingRelatedEvents.eventList);
-                    console.log(bookedEvents)
                 }else{
-                    console.log(res.data);
                     if(res && res.data && res.data.errors && res.data.errors[0].message &&
                       (res.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT || 
                         res.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)){
-                        dispatch(loggUser(null));
+                        dispatch(resetState());
                         navigate("/");
                       }
                   }
@@ -154,7 +144,7 @@ const BookingList = () => {
                 if (error && error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].message &&
                     (error.response.data.errors[0].message === Error_STATUS.SESSION_TIMEOUT
                         || error.response.data.errors[0].message === Error_STATUS.UNAUTHENTICATED)) {
-                    dispatch(loggUser(null));
+                    dispatch(resetState());
                     navigate("/");
                 }
             })
@@ -169,7 +159,8 @@ const BookingList = () => {
             <div className="book-list">
                 {currentUser && bookedEvents ? bookedEvents.map((book, i) => {
                     return (
-                        <div key={book._id} style={{ backgroundColor: 'white', width: '60%', marginLeft: '5%',flexDirection:'column',  display: 'flex', justifyContent: 'space-between', borderRadius: '8px', height: '100%', alignItems: 'center' }}>
+                        <div key={book._id} style={{ backgroundColor: 'white', width: '60%', marginLeft: '5%',  display: 'flex', justifyContent: 'space-between', borderRadius: '8px', height: '100%', alignItems: 'center' ,
+                        marginTop:'1%'}}>
                             <div style={{ width: '50%', fontSize: '30px' }}>{book.eventName + " - " + book.date}</div>
                             <div style={{ marginTop: '4px' }}><button className="btn btn-danger" onClick={() => handleCancelClick(i)}>Cancel</button></div>
                         </div>

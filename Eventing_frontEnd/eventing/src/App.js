@@ -10,7 +10,6 @@ function App() {
   const navigate = useNavigate();
   useEffect(()=>{
     let user = store.getState().user;
-    console.log(user);
     if(user && user.username){
       setCurrentUser(user);
       navigate("/logged/"+user.username);
